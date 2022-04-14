@@ -1,0 +1,22 @@
+---
+title: "final"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+My dataset is planned to include the make, model, year, engine cylinders, displacement, vehicle weight, city and highway mpg, drivetrain, and transmission of cars. This is similar to the mpg dataset, however I am more interested in more modern cars with both transmission options  (2000-present, not including CVT / hybrids) because I would like to see when and how manual vs automatic transmission efficiency and year with technology translates in mpg. I will be obtaining these details from their car websites and car journals - car fans are geeks about the numbers so obtaining the data will not be a problem. There will be about 8 or so predictor variables and I will try to predict either one or two variables; either overall mpg or highway and city mpg. Around half of the variables will be quantitative and the other half qualitative. 
+There will be no missing data because I will self select all vehicles, so any entries with missing information will just not be chosen.
+
+The question if automatic transmissions have become more efficient than manual transmissions as well as how time has changed efficiency or the former question will be answered with both a classification and regression approach. Because there are a similar amount of both predictor variables of qualitative/quantitative, both should play an important part. All predictors I think will play some part - some more than others (I am curious how branding and engine cylinders play a part in efficiency and evolution through time). The model is visioned to be more inferential than descriptive or predictive, but would certainly be a combination of all three. There are a lot of questions I want to be answered with the model, but certainly (as we have done before) can mpg be predicted using a model with given variables, as well as certain brands described.
+
+I plan to have my data by week 4, by slowly accumulating information about different cars I care about that answer all predictive variables. As the quarter goes and I learn different things, I will think more on what I can do week by week.
+
+
+
