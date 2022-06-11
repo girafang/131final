@@ -1,8 +1,13 @@
 ---
 title: "131 Final Project"
 author: "John Wei"
-  pdf_document: default
-  html_document: default
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    toc_float: yes
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -75,7 +80,7 @@ the more blood movement the better (no clots)
 ## R Markdown
 
 ## Loading Data and Packages
-```{r, message = FALSE}
+```{r, message = FALSE, hide = TRUE}
 library(ranger)
 library(janitor)
 library(rpart.plot)
@@ -100,29 +105,34 @@ library(lubridate, warn.conflicts = FALSE)
 tidymodels_prefer()
 set.seed(4167)
 ```
+Let's look at some of our data!
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, hide = TRUE}
 df <- read_csv("heart_cleveland_upload.csv")
 head(df)
 ```
 
-Start by cleaning and checking data, then checking if there are missing values; there are not.
+Start by cleaning and checking data.
 
-```{r}
+```{r, class.source = "fold-show"}
 df <- df %>% clean_names()
 head(df)
+```
+
+Then checking if there are missing values; there are not.
+```{r, class.source = "fold-show"}
 sum(is.na(df)) 
 ```
 
 Checking if responsible variable is balanced; since these two values are close to even, our target column can be considered balanced.
 
-```{r}
+```{r, class.source = "fold-show"}
 table(df$condition)
 ```
 
 Converting `sex`, `cp`, `fbs`, `restecg`, `slope`, `thal`, `condition` to factors.
 
-```{r}
+```{r, class.source = "fold-show"}
 df$sex <- factor(df$sex,
 labels = c("Female", "Male"))
 df$cp <- factor(df$cp, 
@@ -150,7 +160,7 @@ This exploratory data analysis will be based only on the entire set, which has 2
 
 ### Variable age and thalach (max heart rate)
 Drawing a plot of variable `age`:
-```{r}
+```{r, class.source = "fold-show"}
 df %>% 
   ggplot(aes(x = age)) +
   geom_bar() 
@@ -158,7 +168,7 @@ df %>%
 
 The graph is right skewed, with many respondents between 50-60 and mostly older than 40.
 
-```{r}
+```{r, class.source = "fold-show"}
 df %>% 
   ggplot(aes(x = thalach)) +
   geom_bar() 
@@ -166,7 +176,7 @@ df %>%
 The graph is right skewed, with many respondents having a max heart rate between 150 and 200.
 
 Drawing a graph between age, max heart rate, and condition (green: no, red: yes):
-```{r}
+```{r, class.source = "fold-show"}
 plot(df$age, df$thalach, pch = 16, col = c('red', 'green')[df$condition], xlab = "Age", ylab = "Max Heart Rate")
 ```
 Heart condition seems to go down while age goes up (possibly due to a lack of quantity in respondents), heart rate tends to go down with age, and the frequency of a heart condition seems to go up with maximum heart rate.
@@ -174,7 +184,7 @@ Heart condition seems to go down while age goes up (possibly due to a lack of qu
 ### Variable sex
 Drawing a plot of variable `sex`:
 
-```{r}
+```{r, class.source = "fold-show"}
 df %>% 
   ggplot(aes(x = sex)) +
   geom_bar() 
@@ -183,7 +193,7 @@ df %>%
 According to the graph, we find that there are more observations on 'Male' levels than 'Female' levels for variable `sex`. 
 
 Drawing a plot of variable `sex` by `condition`:
-```{r}
+```{r, class.source = "fold-show"}
 df %>%
   ggplot(aes(x = sex, y = condition, fill= condition)) +
   geom_bar(stat = "identity")
@@ -193,7 +203,7 @@ Based on the graph, we see that male individuals are more likely to get heart di
 
 ### Variable cp (chest pain type)
 Drawing a plot of variable `cp` vs `condition`:
-```{r}
+```{r, class.source = "fold-show"}
 df %>% 
   ggplot(aes(x = cp, y = condition, fill = condition)) +
   geom_bar(stat = "identity") 
@@ -202,14 +212,14 @@ From this graph, we see that in an atypical angina or non-anginal chest pain typ
 
 ### Variable trestbps
 Drawing a histogram of variable `trestbps`:
-```{r}
+```{r, class.source = "fold-show"}
 hist(df$trestbps, main = paste("Histogram of Resting Blood Pressure"), xlab = 'Resting Blood Pressure', ylab = 'Respondents')
 ```
 The distribution of `trestbps` is left skewed and has a long right tail. It looks closely like a normal distribution, with a peak around 120-130. Most people have a resting blood pressure below 160.
 
 
 Drawing a boxplot of variable `trestbps` by `condition`:
-```{r}
+```{r, class.source = "fold-show"}
 df %>%
   ggplot(aes(x = trestbps, y= condition))+
   geom_boxplot() +
@@ -219,14 +229,14 @@ Based on the graph, we can find that individuals who have a higher resting blood
 
 ### Variable chol (cholesterol)
 Drawing a plot of variable `chol`:
-```{r}
+```{r, class.source = "fold-show"}
 df %>% 
   ggplot(aes(x = chol)) +
   geom_bar() 
 ```
 Like 'trestbps', the data is left skewed, with a shorter right tail. Most of the cholesterol levels fall between 200-300 mg/dl, which is above the 200 threshhold for "cause of concern".
 
-```{r}
+```{r, class.source = "fold-show"}
 df %>% 
   ggplot(aes(x = chol, y = condition, fill = condition)) +
   geom_boxplot()
@@ -236,7 +246,7 @@ Higher levels of cholerestol seem to indicate more likelihood of having a heart 
 ### Variable fbs (fasting blood sugar)
 
 Drawing a plot of variable `fbs`:
-```{r}
+```{r, class.source = "fold-show"}
 df %>% 
   ggplot(aes(x = fbs)) +
   geom_bar() 
@@ -246,7 +256,7 @@ The graph shows that there are far more individuals with less than 120 mg/dl fas
 
 Drawing a plot of variable `fbs` by `condition`:
 
-```{r}
+```{r, class.source = "fold-show"}
 df %>%
   ggplot(aes( x= fbs, y = condition, fill = condition)) +
   geom_bar(stat="identity")
@@ -256,7 +266,7 @@ Based on the graph, an individual has just a slight increase in likelihood of he
 
 ### Variable exang (excercise-induced angina)
 Drawing plot of variable `exang`:
-```{r}
+```{r, class.source = "fold-show"}
 df %>% 
   ggplot(aes(x = exang)) +
   geom_bar() 
@@ -265,7 +275,7 @@ Around twice the people do not have exercise-induced angina compared to those wh
 
 Drawing a plot of variable `exang` by `condition`:
 
-```{r}
+```{r, class.source = "fold-show"}
 df %>%
   ggplot(aes(x= exang, y= condition , fill = condition)) +
   geom_bar(stat="identity")+theme_minimal()
@@ -276,7 +286,7 @@ Based on the graph, we can find that the respondent who have exercise-induced an
 ### Variable oldpeak (ST depression induced by exercise relative to rest)
 Drawing a plot of variable `oldpeak`.
 
-```{r}
+```{r, class.source = "fold-show"}
 df %>% 
   ggplot(aes(x = oldpeak)) +
   geom_bar() 
@@ -285,7 +295,7 @@ df %>%
 There are many observations specifically at 0 (which indicates normal stressing during exercise), along with many observations spread between 0 and .4 and a few outliers at around .6.
 
 Drawing a plot of variable `oldpeak` by `condition`: 
-```{r}
+```{r, class.source = "fold-show"}
 df %>%
   ggplot(aes(x = oldpeak,y = condition, fill = condition)) +
   geom_boxplot()
@@ -296,7 +306,7 @@ A boxplot shows that when an individuals heart stresses more than usual during e
 
 Drawing a plot with variable 'slope' vs 'condition'.
 
-```{r}
+```{r, class.source = "fold-show"}
 df %>% 
   ggplot(aes(x = slope, y = condition, fill = condition)) +
   geom_bar(stat = "identity") 
@@ -307,7 +317,7 @@ From this graph we see flatsloping (typical healthy heart) as the most common, w
 
 Drawing a plot with variable `ca` vs `condition`:
 
-```{r}
+```{r, class.source = "fold-show"}
 df %>% 
   ggplot(aes(x = ca, y = condition, fill = condition)) +
   geom_bar(stat = "identity")
@@ -317,7 +327,7 @@ The more number of major vessels colored by flouroscopy, the more likely there i
 ### Variable condition (heart disease or not)
 
 Drawing a plot with response variable `condition`:
-```{r}
+```{r, class.source = "fold-show"}
 df %>% 
   ggplot(aes(x = condition)) +
   geom_bar() 
@@ -329,7 +339,7 @@ From the graph, we find the response variable to be almost balanced. However, si
 ## Data Split
 80% of the data will be split for training, and the other 20% for testing.
 
-```{r}
+```{r, class.source = "fold-show"}
 df_split <- df %>% 
   initial_split(prop = 0.8, strata = "condition")
 df_train <- training(df_split)
@@ -342,14 +352,14 @@ The testing data has 60 observations (just about 20% of the 300 total observatio
 
 We create a correlation plot with each character variable turned into a numeric one.
 
-```{r}
+```{r, class.source = "fold-show"}
 df_train_factor <- df_train
 df_train_factor[] <- lapply(df_train_factor, factor)
 df_train_numeric <- df_train_factor
 df_train_numeric[] <- as.data.frame(sapply(df_train_numeric, as.numeric))
 ```
 
-```{r, fig.width= 10, fig.height = 10}
+```{r, fig.width= 10, fig.height = 10, class.source = "fold-show"}
 df_train_numeric %>%
   select(where(is.numeric)) %>%
   cor(use = "complete.obs") %>%
@@ -363,7 +373,7 @@ Relatively strong negative correlations include  thalach and: exang, condition, 
 
 Folding the training set using *v*-fold cross-validation, with `v = 5` and stratifying on our outcome variable `condition`:
 
-```{r}
+```{r, class.source = "fold-show"}
 df_folds <- vfold_cv(data = df_train, v = 5, strata = condition)
 ```
 
@@ -379,7 +389,7 @@ As we are working with a classification problem, we will be fitting and tuning t
 
 
 ### Building the Recipe 
-```{r}
+```{r, class.source = "fold-show"}
 df_recipe <- recipe(condition ~ age + sex + cp + trestbps + chol + fbs + restecg + thalach + exang + oldpeak + slope + ca + thal, data = df_train) %>% 
   step_dummy(all_nominal_predictors()) %>% 
   step_normalize(all_predictors()) %>%
@@ -390,7 +400,7 @@ df_recipe <- recipe(condition ~ age + sex + cp + trestbps + chol + fbs + restecg
 
 We first set up using a random forest model and workflow. Using the ranger engine and setting importance = "impurity". 
 
-```{r}
+```{r, class.source = "fold-show"}
 rf_spec <- rand_forest(mtry = tune(),trees = tune(), min_n = tune()) %>%
   set_engine("ranger", importance = "impurity") %>%
   set_mode("classification")
@@ -401,7 +411,7 @@ rf_wf <- workflow() %>%
 
 Tuning mtry, trees, and min_n.
 
-```{r}
+```{r, class.source = "fold-show"}
 param_grid_rf <- grid_regular(mtry(range = c(1, 14)),
                            trees(range = c(10, 1000)), 
                            min_n(range = c(1, 100)),
@@ -409,7 +419,7 @@ param_grid_rf <- grid_regular(mtry(range = c(1, 14)),
 ```
 
 Tuning the model and print an autoplot() of the results.
-```{r}
+```{r, class.source = "fold-show"}
 tune_result <- tune_grid(
   rf_wf, 
   resamples = df_folds, 
@@ -430,7 +440,7 @@ Using the `show_best()` function, we find the highest mean is .8935. This is wit
 
 Now, we are going to set up a boosted tree model and workflow. Use the xgboost engine. We will tune mtry, trees, and min_n. Using the documentation for boost_tree().
 
-```{r}
+```{r, class.source = "fold-show"}
 boost_tree_spec <- boost_tree(trees = tune(),
                               min_n = tune(),
                               mtry = tune()
@@ -442,7 +452,7 @@ boost_tree_workflow <- workflow() %>%
   add_recipe(df_recipe)
 ```
 
-```{r}
+```{r, class.source = "fold-show"}
 boost_tree_grid<- grid_regular(mtry(range = c(1, 14)),
                            trees(range = c(10, 1000)), 
                            min_n(range = c(1, 10)),
@@ -451,7 +461,7 @@ boost_tree_grid<- grid_regular(mtry(range = c(1, 14)),
 
 Tuning model and print an autoplot() of the results.
 
-```{r}
+```{r, class.source = "fold-show"}
 boost_tune_result <- tune_grid(
   boost_tree_workflow, 
   resamples = df_folds, 
@@ -463,7 +473,7 @@ autoplot(boost_tune_result)
 We see from plotting that a lower number of trees leads to a highest accuracy, as well as a medium number of randomly selected predictors for the lowest amount of trees (higher number of random selected predictors for higher amount of trees) and a higher minimal node size. I tried keeping the minimal node size consistent for the different models but had to tune each one specifically to show data visually best.
 
 
-```{r}
+```{r, class.source = "fold-show"}
 show_best(boost_tune_result) %>% select(-.estimator, -.config)
 ```
 
@@ -474,7 +484,7 @@ Using the `show_best()` function, we find the highest mean is .8605. This is wit
 To create a logistics regression model, `logistic_reg()` and the `glm` engine will be used. `fit()` will be used fit the model to the folded data.
 
 
-```{r}
+```{r, class.source = "fold-show"}
 log_reg <- logistic_reg() %>% 
   set_engine("glm") %>% 
   set_mode("classification")
@@ -483,13 +493,13 @@ log_wkflow <- workflow() %>%
   add_recipe(df_recipe)
 ```
 
-```{r}
+```{r, class.source = "fold-show"}
 log_fit <- fit_resamples(log_wkflow, df_folds)
 ```
 
 We use `collect_metrics()` to print the mean and standard errors of the performance metric accuracy across all folds.
 
-```{r}
+```{r, class.source = "fold-show"}
 collect_metrics(log_fit)
 ```
 Logistic regression returns a roc_auc of .8845.
@@ -498,7 +508,7 @@ Logistic regression returns a roc_auc of .8845.
 
 To set up a K-Nearest Neighbor Model and workflow, I will use `nearest_neighbor()` and the `kknn` engine, and tune `neighbors` and setting the mode to `classification`. 
 
-```{r}
+```{r, class.source = "fold-show"}
 knn_model <- nearest_neighbor(neighbors = tune(), mode = "classification") %>%
   set_engine("kknn")
   
@@ -507,18 +517,18 @@ knn_workflow <- workflow() %>%
   add_recipe(df_recipe)
 ```
 
-```{r}
+```{r, class.source = "fold-show"}
 knn_params <- parameters(knn_model)
 knn_grid <- grid_regular(knn_params, levels = 10)
 ```
 
-```{r}
+```{r, class.source = "fold-show"}
 knn_tune <- tune_grid(knn_workflow, resamples = df_folds, grid = knn_grid, metrics = metric_set(roc_auc))
 autoplot(knn_tune)
 ```
 From the plot we see the roc_auc goes up with higher numbers of nearest neighbors.
 
-```{r}
+```{r, class.source = "fold-show"}
 arrange(collect_metrics(knn_tune),desc(mean))
 ```
 
@@ -529,7 +539,7 @@ Using collect_metric() and arrange(), the highest mean accuracy of KNN models am
 Our best performing model so far is the random forest model. We will now evaluate its performance on the testing set with finalize_workflow().
 
  
-```{r}
+```{r, class.source = "fold-show"}
 best <- select_best(tune_result, metric= 'roc_auc')
 forest_final <- finalize_workflow(rf_wf, best)
 forest_final_fit <- fit(forest_final, data = df_train)
@@ -539,7 +549,7 @@ augment(forest_final_fit, new_data = df_test) %>%
 
 Accuracy of .85 is returned. Now we make a heatmap on the predictions on the testing set.
 
-```{r}
+```{r, class.source = "fold-show"}
 augment(forest_final_fit, new_data = df_test) %>%
   conf_mat(truth = condition, estimate = .pred_class) %>%
   autoplot(type = "heatmap")
@@ -547,7 +557,7 @@ augment(forest_final_fit, new_data = df_test) %>%
 
 We visualize by making a ROC curve. 
 
-```{r}
+```{r, class.source = "fold-show"}
 augment(forest_final_fit, new_data = df_test) %>%
   roc_curve(condition, .pred_Yes) %>%
   autoplot()
@@ -556,14 +566,14 @@ augment(forest_final_fit, new_data = df_test) %>%
 
 Calculating AUC of random forest on the testing set; .039 is returned.
 
-```{r}
+```{r, class.source = "fold-show"}
 augment(forest_final_fit, new_data = df_test) %>%
   roc_auc(condition, .pred_Yes)
 ```
 
 Now, we get to use our model to predict if an individual has a heart condition or not.
 
-```{r}
+```{r, class.source = "fold-show"}
 test1 <- data.frame(
   age = 80,
   sex = "Male",
@@ -583,7 +593,7 @@ predict(forest_final_fit, test1)
 ```
 
 
-```{r}
+```{r, class.source = "fold-show"}
 test2 <- data.frame(
   age = 50,
   sex = "Female",
@@ -603,7 +613,7 @@ predict(forest_final_fit, test2)
 ```
 
 
-```{r}
+```{r, class.source = "fold-show"}
 test3 <- data.frame(
   age = 30,
   sex = "Male",
